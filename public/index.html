@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Santa Rosa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .formulario {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group input[readonly] {
+            background-color: #f5f5f5;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .mensaje {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .mensaje.exito {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .mensaje.error {
+            display: block;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .formulario {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Sistema de Registro de Actividades</h1>
+            <p>Departamento de Santa Rosa, Guatemala</p>
+        </div>
+        
+        <form id="actividadForm" class="formulario">
+            <div class="form-group">
+                <label>📌 Departamento:</label>
+                <input type="text" id="departamento" value="Santa Rosa" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>🏘️ Municipio:</label>
+                <select id="municipio" required>
+                    <option value="">Seleccione un municipio</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>🏠 Comunidad:</label>
+                <select id="comunidad" required disabled>
+                    <option value="">Primero seleccione un municipio</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>📅 Tipo de Actividad:</label>
+                <select id="tipo_actividad" required>
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Charla">📢 Charla</option>
+                    <option value="Capacitación">📚 Capacitación</option>
+                    <option value="Taller">🛠️ Taller</option>
+                    <option value="Reunión">🤝 Reunión</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>📅 Fecha de Realización:</label>
+                <input type="date" id="fecha" required>
+            </div>
+            
+            <div class="form-group">
+                <label>👥 Total Participantes:</label>
+                <input type="number" id="total_participantes" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label>👨 Hombres:</label>
+                <input type="number" id="hombres" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label>👩 Mujeres:</label>
+                <input type="number" id="mujeres" min="0" required>
+            </div>
+            
+            <button type="submit">💾 Guardar Registro</button>
+            
+            <div id="mensaje" class="mensaje"></div>
+        </form>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarMunicipios();
+            
+            document.getElementById('municipio').addEventListener('change', (e) => {
+                const municipioId = e.target.value;
+                if (municipioId) {
+                    cargarComunidades(municipioId);
+                } else {
+                    document.getElementById('comunidad').innerHTML = '<option value="">Primero seleccione un municipio</option>';
+                    document.getElementById('comunidad').disabled = true;
+                }
+            });
+            
+            document.getElementById('total_participantes').addEventListener('input', validarParticipantes);
+            document.getElementById('hombres').addEventListener('input', validarParticipantes);
+            document.getElementById('mujeres').addEventListener('input', validarParticipantes);
+            
+            document.getElementById('actividadForm').addEventListener('submit', guardarFormulario);
+        });
+        
+        async function cargarMunicipios() {
+            try {
+                const response = await fetch('/api/municipios');
+                const municipios = await response.json();
+                const select = document.getElementById('municipio');
+                select.innerHTML = '<option value="">Seleccione un municipio</option>';
+                municipios.forEach(m => {
+                    const option = document.createElement('option');
+                    option.value = m.id;
+                    option.textContent = m.nombre;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                mostrarMensaje('Error al cargar municipios', 'error');
+            }
+        }
+        
+        async function cargarComunidades(municipioId) {
+            try {
+                const response = await fetch(`/api/comunidades/${municipioId}`);
+                const comunidades = await response.json();
+                const select = document.getElementById('comunidad');
+                select.innerHTML = '<option value="">Seleccione una comunidad</option>';
+                comunidades.forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.id;
+                    option.textContent = c.nombre;
+                    select.appendChild(option);
+                });
+                select.disabled = false;
+            } catch (error) {
+                mostrarMensaje('Error al cargar comunidades', 'error');
+            }
+        }
+        
+        function validarParticipantes() {
+            const total = parseInt(document.getElementById('total_participantes').value) || 0;
+            const hombres = parseInt(document.getElementById('hombres').value) || 0;
+            const mujeres = parseInt(document.getElementById('mujeres').value) || 0;
+            
+            if (hombres + mujeres > total) {
+                mostrarMensaje('La suma no puede ser mayor al total', 'error');
+                return false;
+            } else if (hombres + mujeres < total) {
+                mostrarMensaje(`Faltan ${total - (hombres + mujeres)} participantes`, 'error');
+                return false;
+            } else {
+                ocultarMensaje();
+                return true;
+            }
+        }
+        
+        async function guardarFormulario(e) {
+            e.preventDefault();
+            
+            const municipioSelect = document.getElementById('municipio');
+            const comunidadSelect = document.getElementById('comunidad');
+            
+            if (!municipioSelect.value) {
+                mostrarMensaje('Seleccione un municipio', 'error');
+                return;
+            }
+            if (!comunidadSelect.value) {
+                mostrarMensaje('Seleccione una comunidad', 'error');
+                return;
+            }
+            if (!validarParticipantes()) return;
+            
+            const datos = {
+                departamento: 'Santa Rosa',
+                municipio: municipioSelect.options[municipioSelect.selectedIndex].text,
+                comunidad: comunidadSelect.options[comunidadSelect.selectedIndex].text,
+                tipo_actividad: document.getElementById('tipo_actividad').value,
+                fecha: document.getElementById('fecha').value,
+                total_participantes: document.getElementById('total_participantes').value,
+                hombres: document.getElementById('hombres').value,
+                mujeres: document.getElementById('mujeres').value
+            };
+            
+            mostrarMensaje('Guardando...', 'cargando');
+            
+            try {
+                const response = await fetch('/api/guardar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                const resultado = await response.json();
+                
+                if (resultado.success) {
+                    mostrarMensaje('✅ ¡Registro guardado exitosamente!', 'exito');
+                    document.getElementById('actividadForm').reset();
+                    document.getElementById('comunidad').innerHTML = '<option value="">Primero seleccione un municipio</option>';
+                    document.getElementById('comunidad').disabled = true;
+                    setTimeout(() => ocultarMensaje(), 3000);
+                } else {
+                    mostrarMensaje('❌ Error al guardar', 'error');
+                }
+            } catch (error) {
+                mostrarMensaje('❌ Error de conexión', 'error');
+            }
+        }
+        
+        function mostrarMensaje(texto, tipo) {
+            const msg = document.getElementById('mensaje');
+            msg.textContent = texto;
+            msg.className = `mensaje ${tipo}`;
+        }
+        
+        function ocultarMensaje() {
+            const msg = document.getElementById('mensaje');
+            msg.style.display = 'none';
+            msg.className = 'mensaje';
+        }
+    </script>
+</body>
+</html>

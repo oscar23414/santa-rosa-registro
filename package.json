@@ -1,0 +1,15 @@
+{
+  "name": "santa-rosa-registro",
+  "version": "1.0.0",
+  "description": "Sistema de registro de actividades - Santa Rosa",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "nodemailer": "^6.10.1",
+    "sqlite3": "^5.1.6"
+  }
+}
